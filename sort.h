@@ -28,5 +28,6 @@ void shell_sort(int *array, size_t size);
 void counting_sort(int *array, size_t size);
 /*Selection sort*/
 void selection_sort(int *array, size_t size);
-void quicksort(int *array, int first, int last, size_t sizeArray);
+void quick_sort(int *array, size_t size);
+
 #endif
