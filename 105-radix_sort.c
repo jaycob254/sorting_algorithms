@@ -1,87 +1,67 @@
 #include "sort.h"
-#include <math.h>
-/**
- * copy - merge sort algorithm
- * @array: the int array pointer header
- * @dest: the destination array
- * @size:  the array size
- */
-void copy(int *array, int *dest, size_t size)
-{
-size_t pos = 0;
-for (pos = 0; pos < size; pos++)
-{
-dest[pos] = array[pos];
-}
-}
-
 
 /**
- * lsd_counting - sort int array performing LSD Radix sorting algorithm
- * @array: the integer array
- * @sorted: the integer array
- * @size: the array size
- * @exp: exponetial
- */
-void lsd_counting(int *array, int *sorted, size_t size, size_t exp)
-{
-size_t bi;
-int pos = 0;
-int *buck = malloc(sizeof(int) * 10);
-for (pos = 0; pos < 10; pos++)
-buck[pos] = 0;
-for (pos = 0; pos < (int) size; pos++)
-{
-bi = (array[pos] / exp) % 10;
-/* printf("%u, ", bi); */
-/* printf("%u\n", bi); */
-buck[bi] += 1;
-}
-/* printf("\n"); */
-/* print_array(buck, size); */
-for (pos = 1; pos < (int) size; pos++)
-buck[pos] += buck[pos - 1];
-for (pos = size - 1; pos >= 0; pos--)
-{
-bi = (array[pos] / exp) % 10;
-buck[bi] -= 1;
-/* printf("bip: %u p: %d\n", buck[bi], pos); */
-sorted[buck[bi]] = array[pos];
-}
-free(buck);
-}
-
-
-/**
- * radix_sort - sort int array performing LSD Radix sorting algorithm
- * @array: the integer array
- * @size: the array size
- */
+ * radix_sort - sort array with radix method
+ * @array: array to sort
+ * @size: size of the array
+ * Return: nothing
+*/
 void radix_sort(int *array, size_t size)
 {
-int *sorted, min = 0, max = 0;
-/* islast = 0; */
-size_t pos = 0, exp = 1;
-if (size < 2)
+int i, j, x, y, cantRep, max, div = 1, t = 0;
+int buckets[10][1000];
+if (!array || size < 2)
 return;
-sorted = malloc(sizeof(int) * size);
-copy(array, sorted, size);
-min = array[0];
 max = array[0];
-for (pos = 1; pos < size; pos++)
+for (i = 1; i < (int) size; i++)
+if (array[i] > max)
+max = array[i];
+for (i = 0; i < 10; ++i)
+for (j = 0; j < 1000; ++j)
+buckets[i][j] = -1;
+cantRep = getCantRep(max);
+for (i = 0; i < cantRep; ++i)
 {
-if (array[pos] < min)
-min = array[pos];
-else if (array[pos] > max)
-max = array[pos];
-}
-exp = 1;
-while ((max - min) / exp >= 1)
+for (j = 0; j < (int) size; ++j)
 {
-lsd_counting(array, sorted, size, exp);
-print_array(sorted, size);
-exp *= 10;
-copy(sorted, array, size);
+for (y = 0; buckets[(array[j] / div) % 10][y] != -1; y++)
+;
+buckets[(array[j] / div) % 10][y] = array[j];
 }
-free(sorted);
+div = div * 10;
+t = 0;
+for (x = 0; x < 10; ++x)
+{
+for (y = 0; buckets[x][y] != -1; y++)
+{
+array[t] = buckets[x][y];
+buckets[x][y] = -1;
+t++;
+}
+}
+print_array(array, size);
+}
+}
+
+
+/**
+ * getCantRep - Returns the number of digits of the largest number in the array
+ * @num: The largest number
+ * Return: Number of digits of the num
+ */
+int getCantRep(int num)
+{
+bool flag = true;
+int cont = 0;
+while (flag)
+{
+flag = false;
+if (num > 0)
+{
+num = num / 10;
+cont++;
+flag = true;
+}
+}
+return (cont);
 }
