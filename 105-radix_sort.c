@@ -1,87 +1,76 @@
 #include "sort.h"
-#include <math.h>
+
 /**
- * copy - merge sort algorithm
- * @array: the int array pointer header
- * @dest: the destination array
- * @size:  the array size
+ * max_num - function reutrn max integer
+ *
+ * @array: pointers array
+ * @size: size value the lengeth
+ * Return: integer data
  */
-void copy(int *array, int *dest, size_t size)
+int max_num(int *array, int size)
 {
-size_t pos = 0;
-for (pos = 0; pos < size; pos++)
-{
-dest[pos] = array[pos];
-}
-}
+	int max_num, j;
 
+	for (max_num = array[0], j = 1; j < size; j++)
+	{
+		if (array[j] > max_num)
+			max_num = array[j];
+	}
+	return (max_num);
+}
 
 /**
- * lsd_counting - sort int array performing LSD Radix sorting algorithm
- * @array: the integer array
- * @sorted: the integer array
- * @size: the array size
- * @exp: exponetial
+ * radix_counting - function radix counting data
+ *
+ * @array: pointers array
+ * @size: size value the lengeth
+ * @powten: integer data powten
+ * @copy: malloc with copy the array
  */
-void lsd_counting(int *array, int *sorted, size_t size, size_t exp)
+void radix_counting(int *array, size_t size, int powten, int *copy)
 {
-size_t bi;
-int pos = 0;
-int *buck = malloc(sizeof(int) * 10);
-for (pos = 0; pos < 10; pos++)
-buck[pos] = 0;
-for (pos = 0; pos < (int) size; pos++)
-{
-bi = (array[pos] / exp) % 10;
-/* printf("%u, ", bi); */
-/* printf("%u\n", bi); */
-buck[bi] += 1;
-}
-/* printf("\n"); */
-/* print_array(buck, size); */
-for (pos = 1; pos < (int) size; pos++)
-buck[pos] += buck[pos - 1];
-for (pos = size - 1; pos >= 0; pos--)
-{
-bi = (array[pos] / exp) % 10;
-buck[bi] -= 1;
-/* printf("bip: %u p: %d\n", buck[bi], pos); */
-sorted[buck[bi]] = array[pos];
-}
-free(buck);
-}
+	int count[10] = {0};
+	int index;
 
+
+	for (index = 0; index < (int)size; index++)
+		count[(array[index] / powten) % 10] += 1;
+
+	for (index = 0; index < 10; index++)
+		count[index] += count[index - 1];
+
+	for (index = (int)size - 1; index >= 0; index--)
+	{
+		copy[count[(array[index] / powten) % 10] - 1] = array[index];
+		count[(array[index] / powten) % 10] -= 1;
+	}
+	for (index = 0; index < (int)size; index++)
+		array[index] = copy[index];
+}
 
 /**
- * radix_sort - sort int array performing LSD Radix sorting algorithm
- * @array: the integer array
- * @size: the array size
+ * radix_sort - function sorting radix
+ *
+ * @array: pointers array
+ * @size: size value the lengeth
  */
 void radix_sort(int *array, size_t size)
 {
-int *sorted, min = 0, max = 0;
-/* islast = 0; */
-size_t pos = 0, exp = 1;
-if (size < 2)
-return;
-sorted = malloc(sizeof(int) * size);
-copy(array, sorted, size);
-min = array[0];
-max = array[0];
-for (pos = 1; pos < size; pos++)
-{
-if (array[pos] < min)
-min = array[pos];
-else if (array[pos] > max)
-max = array[pos];
-}
-exp = 1;
-while ((max - min) / exp >= 1)
-{
-lsd_counting(array, sorted, size, exp);
-print_array(sorted, size);
-exp *= 10;
-copy(sorted, array, size);
-}
-free(sorted);
+	int max, powten, *copy;
+
+	if (!array || size < 2)
+		return;
+
+	copy = malloc(sizeof(int) * size);
+	if (copy == NULL)
+		return;
+
+	max = max_num(array, size);
+
+	for (powten = 1; max / powten > 0; powten *= 10)
+	{
+		radix_counting(array, size, powten, copy);
+		print_array(array, size);
+	}
+	free(copy);
 }
