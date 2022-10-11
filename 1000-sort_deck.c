@@ -77,7 +77,6 @@ deck_node_t *iter, *insert, *tmp;
 for (iter = (*deck)->next; iter != NULL; iter = tmp)
 {
 tmp = iter->next;
-\
 insert = iter->prev;
 while (insert != NULL && insert->card->kind > iter->card->kind)
 {
